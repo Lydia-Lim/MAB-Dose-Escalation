@@ -48,8 +48,8 @@ class SEEDADoseEscalator(DoseEscalatorBase):
         ))) ** (- 1 / self._gamma_1)) / 30
         self._is_training = is_training
 
-        np.random.seed(seed)
-        self._a_hat_doses = np.random.gamma(shape=1, scale=1, size=self._K)
+        self._rng = np.random.RandomState(seed)
+        self._a_hat_doses = self._rng.gamma(shape=1, scale=1, size=self._K)
         self._dose_toxicity_curve = dose_toxicity_curve
 
         assert len(dose_levels) == len(p_hat)
@@ -78,7 +78,10 @@ class SEEDADoseEscalator(DoseEscalatorBase):
         admissible_set = self._dose_toxicity_curve(
             self._dose_levels, a_hat + alpha_t
         ) <= self._ttl
-        F = self._q_hat + np.sqrt(sum(self._N) * self._c / self._N)
+        # Paper eq. (4): F(p, s, n) = p + sqrt(c * log(n) / s), where n = sum(N), s = N_k.
+        # The original code was missing log():
+        #F = self._q_hat + np.sqrt(sum(self._N) * self._c / self._N)
+        F = self._q_hat + np.sqrt(np.log(sum(self._N)) * self._c / self._N)
         F_filtered = F[admissible_set]
         return a_hat, admissible_set, F, F_filtered
 
@@ -89,25 +92,37 @@ class SEEDADoseEscalator(DoseEscalatorBase):
             if len(F_filtered) == 0:
                 self._I = 0
             else:
-                # Pick argmax, or select largest arm if tied.
+                best_idx = None
                 for idx, admissible in enumerate(admissible_set):
-                    if (admissible and
-                            self._validator.validate(idx) and
-                            F[idx] >= F[self._I]):
-                        self._I = idx
+                    if admissible and self._validator.validate(idx):
+                        if best_idx is None or F[idx] >= F[best_idx]:
+                            best_idx = idx
+                if best_idx is not None:
+                    self._I = best_idx
             return self._I
         else:
             p_dle = self._dose_toxicity_curve(self._dose_levels, a_hat)
 
             # prop_idx = np.argmax(self._q_hat[p_dle <= self._ttl])
             # If we assume monotonic treatment these should be identical.
-            max_idx = 0
+            """max_idx = 0
             for idx in range(len(p_dle)):
                 if (self._validator.validate(idx) and
                         p_dle[idx] <= self._ttl and
                         p_dle[idx] >= p_dle[max_idx]):
                     max_idx = idx
-            return max_idx
+            return max_idx"""
+    
+            # Recommendation rule from §5.1.1: among safe doses, pick the
+            # highest-efficacy one (not the highest-toxicity one because
+            # efficacy is not assumed monotonic in SEEDA):
+            max_idx = None
+            for idx in range(len(self._q_hat)):
+                if (self._validator.validate(idx) and
+                        self._p_hat[idx] <= self._ttl):
+                    if max_idx is None or self._q_hat[idx] >= self._q_hat[max_idx]:
+                        max_idx = idx
+            return max_idx if max_idx is not None else 0
 
     def update(self,
                dose_level_index: int,
@@ -130,12 +145,30 @@ class SEEDADoseEscalator(DoseEscalatorBase):
             + n_dle
         ) / (self._N[dose_level_index] + cohort_size)
         self._N[dose_level_index] = self._N[dose_level_index] + cohort_size
+        
+        # Solve dose_toxicity_curve(d, a_hat) = p_hat[i] for a_hat using
+        # Newton's method with the analytical derivative. For curves of the
+        # form base^a_hat, the derivative w.r.t. a_hat is base^a_hat * ln(base),
+        # where ln(base) = ln(curve(d, 1)). Warm-starting from the previous
+        # estimate avoids the oscillation that a random x0 can cause.
+        d = self._dose_levels[dose_level_index]
+        log_base = np.log(self._dose_toxicity_curve(dose_levels=d, a_hat=1))
+        # Clip to avoid underflow issues:
+        target = float(np.clip(self._p_hat[dose_level_index], 1e-6, 1 - 1e-6))
+        try:
+            self._a_hat_doses[dose_level_index] = newton(
+                lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) - target,
+                fprime=lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) * log_base,
+                x0=self._a_hat_doses[dose_level_index],
+                maxiter=100,
+            )
+        except RuntimeError:
+            # Ill-conditioned: keep the previous estimate:
+            pass
+
+        """
         self._a_hat_doses[dose_level_index] = newton(
-            lambda x: (
-                self._dose_toxicity_curve(
-                    dose_levels=self._dose_levels[dose_level_index],
-                    a_hat=x
-                ) - self._p_hat[dose_level_index]
-            ),
-            x0=np.random.uniform(0, 5)
-        )
+            lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) - self._p_hat[dose_level_index],
+            fprime=lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) * log_base,
+            x0=self._a_hat_doses[dose_level_index],
+        )"""

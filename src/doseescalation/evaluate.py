@@ -1,7 +1,8 @@
 import math
+import os
 import plotly.graph_objects as go
 from collections import Counter
-from doseescalation.dose_escalator import DoseEscalatorBase
+from doseescalation.dose_escalator import DoseEscalatorBase, SEEDADoseEscalator, SEEDAPlateauDoseEscalator
 from doseescalation.simulated_env import SimulatedEnv
 from plotly.subplots import make_subplots
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -24,17 +25,66 @@ DEFAULT_COLORS = [
 def simulate(
     cohort_sizes: Sequence[int],
     dose_escalator: DoseEscalatorBase,
-    env: SimulatedEnv
-) -> Tuple[List, List]:
-    dlis = []
+    env: SimulatedEnv,
+    n_efficate: int = 0,
+    efficacy_env: Optional[SimulatedEnv] = None,
+) -> Tuple[List, List, List]:
+    """
+    Run a simulated trial, returning three per-cohort sequences:
+
+    - ``allocations``: the dose actually given to each cohort (the real
+      exploration/trial policy). Use this for allocation-percentage and
+      toxicity-burden metrics.
+    - ``recommendations``: the MTD the algorithm would declare if the trial
+      stopped at that cohort (its best current estimate). Use this for
+      correct-dose-selection metrics.
+    - ``n_dles``: the number of dose-limiting events observed at the
+      allocated dose for each cohort.
+
+    For CRM and 3 + 3 the recommendation equals the allocation (no
+    exploration/recommendation split); for UCB / SEEDA / SEEDA Plateau the two
+    differ, and the recommendation is read via non-training mode.
+
+    ``efficacy_env`` (optional, only used by SEEDA / SEEDA Plateau) is an env
+    that samples the number of efficacy responders for the allocated dose, e.g.
+    ``Binomial(cohort, q_dose)``. If omitted, the constant ``n_efficate`` is
+    used instead (dose-independent efficacy).
+    """
+    _needs_efficacy = isinstance(
+        dose_escalator, (SEEDADoseEscalator, SEEDAPlateauDoseEscalator)
+    )
+    # UCB / SEEDA / SEEDA Plateau expose a separate recommendation through
+    # non-training mode, while CRM / 3 + 3 have no such split (recommend == allocate):
+    _can_recommend = hasattr(dose_escalator, "train")
+    allocations = []
+    recommendations = []
     n_dles = []
     for cohort in cohort_sizes:
+        # Recommendation is the MTD the algorithm would declare if it stopped now:
+        if _can_recommend:
+            dose_escalator.train(False)
+            recommendations.append(dose_escalator.propose())
+            dose_escalator.train(True)
+        else:
+            recommendations.append(dose_escalator.propose())
+
+        # Allocation is the dose actually given to this cohort (exploration policy):
         dose_level_index = dose_escalator.propose()
-        dlis.append(dose_level_index)
+        allocations.append(dose_level_index)
         n_dle = env(dose_level_index, cohort)
         n_dles.append(n_dle)
-        dose_escalator.update(dose_level_index, cohort, n_dle)
-    return dlis, n_dles
+
+        if _needs_efficacy:
+            # If an efficacy_env is given, sample this cohort's responders from
+            # it (dose-dependent), otherwise fall back to the constant n_efficate:
+            n_eff = (
+                efficacy_env(dose_level_index, cohort)
+                if efficacy_env is not None else n_efficate
+            )
+            dose_escalator.update(dose_level_index, cohort, n_dle, n_eff)
+        else:
+            dose_escalator.update(dose_level_index, cohort, n_dle)
+    return allocations, recommendations, n_dles
 
 
 def _get_env_algos(
@@ -55,6 +105,7 @@ def plot_dose_proposals(
     n_trials: int,
     dose_proposals_map: Dict[str, Dict[str, List[int]]],
     correct_mtds: Dict[str, int],
+    mtds: Optional[Dict[str, int]] = None,
     unit_width: Optional[int] = 200,
     unit_height: Optional[int] = 200,
     title_text: Optional[str] = None,
@@ -93,21 +144,35 @@ def plot_dose_proposals(
         y_title="Number Of Trials",
     )
 
-    # add traces for each algorithm in each environment
-    shown_no_legend = shown_yes_legend = False
+    # Add traces for each algorithm in each environment. The correct-dose
+    # overlay is coloured by whether that dose is the toxicity MTD (green) or a
+    # non-MTD optimal/biological dose (orange), when `mtds` is provided.
+    shown_other = shown_mtd = shown_obd = False
     for row_idx, algo in enumerate(algo_names):
         for col_idx, env in enumerate(env_names):
             proposals = dose_proposals_map[env][algo]
-            correct_mtd = [
-                mtd for mtd in proposals
-                if mtd == correct_mtds[env]
-            ]
+            # correct_mtds[env] may be a single dose (shared by every algorithm)
+            # or a {algorithm: dose} dict, for per-algorithm correct doses.
+            correct = correct_mtds[env]
+            if isinstance(correct, dict):
+                correct = correct[algo]
+            correct_props = [m for m in proposals if m == correct]
+
+            # Is the correct dose the toxicity MTD (defaults to True if no MTDs)?
+            correct_is_mtd = True
+            if mtds is not None:
+                mtd = mtds[env]
+                if isinstance(mtd, dict):
+                    mtd = mtd[algo]
+                correct_is_mtd = correct == mtd
+
+            # Full distribution (its correct bar is covered by the overlay below):
             fig.add_trace(
                 go.Histogram(
                     x=proposals,
-                    name="No",
+                    name="Other",
                     marker_color=DEFAULT_COLORS[-1],
-                    showlegend=not shown_no_legend,
+                    showlegend=not shown_other,
                     xbins=dict(  # bins used for histogram
                         start=-0.5,
                         end=n_dose_levels - 0.5,
@@ -123,12 +188,20 @@ def plot_dose_proposals(
                 row=row_idx + 1,
                 col=col_idx + 1,
             )
+
+            # correct-dose overlay, colored by MTD vs non-MTD optimal dose
+            if correct_is_mtd:
+                correct_name, correct_color = "MTD", DEFAULT_COLORS[2]
+                show_correct = not shown_mtd
+            else:
+                correct_name, correct_color = "Optimal (non-MTD)", DEFAULT_COLORS[1]
+                show_correct = not shown_obd
             fig.add_trace(
                 go.Histogram(
-                    x=correct_mtd,
-                    name="Yes",
-                    marker_color=DEFAULT_COLORS[2],
-                    showlegend=not shown_yes_legend,
+                    x=correct_props,
+                    name=correct_name,
+                    marker_color=correct_color,
+                    showlegend=show_correct,
                     xbins=dict(  # bins used for histogram
                         start=-0.5,
                         end=n_dose_levels - 0.5,
@@ -150,13 +223,12 @@ def plot_dose_proposals(
                 col=col_idx + 1,
             )
 
-            # make sure we only show these legends once
-            shown_no_legend = (
-                shown_no_legend or len(proposals) > 0
-            )
-            shown_yes_legend = (
-                shown_yes_legend or len(correct_mtd) > 0
-            )
+            # Make sure we only show each legend entry once:
+            shown_other = shown_other or len(proposals) > 0
+            if correct_is_mtd:
+                shown_mtd = shown_mtd or len(correct_props) > 0
+            else:
+                shown_obd = shown_obd or len(correct_props) > 0
 
     title_text = title_text or "Number of dose allocations"
     fig.update_layout(
@@ -165,12 +237,14 @@ def plot_dose_proposals(
         height=unit_height * len(algo_names),
         barmode="overlay",
         title_text=title_text,
-        legend_title_text="True MTD",
+        legend_title_text="Correct dose",
     )
 
     if img_path:
+        os.makedirs(os.path.dirname(img_path) or ".", exist_ok=True)
         fig.write_image(img_path)
     if html_path:
+        os.makedirs(os.path.dirname(html_path) or ".", exist_ok=True)
         fig.write_html(html_path)
     if show_fig:
         fig.show()
@@ -229,8 +303,11 @@ def plot_acc_progression(
     for a_idx, a in enumerate(a):
         row_idx = a_idx // n_cols
         col_idx = a_idx % n_cols
-        mtd = correct_mtds[a]
+        correct_for_a = correct_mtds[a]
         for algo_idx, algo in enumerate(algos):
+            # correct_for_a may be a single dose or a {algorithm: dose} dict.
+            mtd = (correct_for_a[algo] if isinstance(correct_for_a, dict)
+                   else correct_for_a)
             accs = []
             for cohort in cohort_names:
                 dlis = dose_proposals_map[a][cohort][algo]
@@ -260,8 +337,10 @@ def plot_acc_progression(
     )
 
     if img_path:
+        os.makedirs(os.path.dirname(img_path) or ".", exist_ok=True)
         fig.write_image(img_path)
     if html_path:
+        os.makedirs(os.path.dirname(html_path) or ".", exist_ok=True)
         fig.write_html(html_path)
     if show_fig:
         fig.show()
@@ -353,8 +432,10 @@ def plot_n_dles(
     )
 
     if img_path:
+        os.makedirs(os.path.dirname(img_path) or ".", exist_ok=True)
         fig.write_image(img_path)
     if html_path:
+        os.makedirs(os.path.dirname(html_path) or ".", exist_ok=True)
         fig.write_html(html_path)
     if show_fig:
         fig.show()
