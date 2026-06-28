@@ -111,9 +111,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
  
             # L1 (paper Alg. 2): the lowest admissible dose where the efficacy
             # plateau begins, i.e. the first dose whose pair (idx, idx+1) is
-            # statistically flat. (Requiring *all* higher pairs to be flat would
-            # break when high doses are unsafe/unvisited and their q_hat sits at
-            # the prior, faking a drop and pushing L1 above the true onset.)
+            # statistically flat.
             L_1 = self._K
             for idx in range(self._K - 1):
                 if (admissible_set[idx]
