@@ -144,10 +144,9 @@ def plot_dose_proposals(
         y_title="Number Of Trials",
     )
 
-    # Add traces for each algorithm in each environment. The correct-dose
-    # overlay is coloured by whether that dose is the toxicity MTD (green) or a
-    # non-MTD optimal/biological dose (orange), when `mtds` is provided.
-    shown_other = shown_mtd = shown_obd = False
+    # Add traces for each algorithm in each environment. The correct dose (the
+    # toxicity MTD) is overlaid in green; every other dose is grey.
+    shown_other = shown_mtd = False
     for row_idx, algo in enumerate(algo_names):
         for col_idx, env in enumerate(env_names):
             proposals = dose_proposals_map[env][algo]
@@ -157,14 +156,6 @@ def plot_dose_proposals(
             if isinstance(correct, dict):
                 correct = correct[algo]
             correct_props = [m for m in proposals if m == correct]
-
-            # Is the correct dose the toxicity MTD (defaults to True if no MTDs)?
-            correct_is_mtd = True
-            if mtds is not None:
-                mtd = mtds[env]
-                if isinstance(mtd, dict):
-                    mtd = mtd[algo]
-                correct_is_mtd = correct == mtd
 
             # Full distribution (its correct bar is covered by the overlay below):
             fig.add_trace(
@@ -189,19 +180,13 @@ def plot_dose_proposals(
                 col=col_idx + 1,
             )
 
-            # correct-dose overlay, colored by MTD vs non-MTD optimal dose
-            if correct_is_mtd:
-                correct_name, correct_color = "MTD", DEFAULT_COLORS[2]
-                show_correct = not shown_mtd
-            else:
-                correct_name, correct_color = "Optimal (non-MTD)", DEFAULT_COLORS[1]
-                show_correct = not shown_obd
+            # correct-dose (MTD) overlay in green:
             fig.add_trace(
                 go.Histogram(
                     x=correct_props,
-                    name=correct_name,
-                    marker_color=correct_color,
-                    showlegend=show_correct,
+                    name="MTD",
+                    marker_color=DEFAULT_COLORS[2],
+                    showlegend=not shown_mtd,
                     xbins=dict(  # bins used for histogram
                         start=-0.5,
                         end=n_dose_levels - 0.5,
@@ -225,10 +210,7 @@ def plot_dose_proposals(
 
             # Make sure we only show each legend entry once:
             shown_other = shown_other or len(proposals) > 0
-            if correct_is_mtd:
-                shown_mtd = shown_mtd or len(correct_props) > 0
-            else:
-                shown_obd = shown_obd or len(correct_props) > 0
+            shown_mtd = shown_mtd or len(correct_props) > 0
 
     title_text = title_text or "Number of dose allocations"
     fig.update_layout(

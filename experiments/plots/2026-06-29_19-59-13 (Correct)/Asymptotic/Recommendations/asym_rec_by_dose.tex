@@ -1,0 +1,32 @@
+\begin{table}
+\centering
+\caption{Asymptotic: recommendation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:asym_rec_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 0 & 1 & 2 & 3 & 4 & 5 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{5}{*}{a = 0.4} & 3 + 3 & {\cellcolor[HTML]{C8E6C9}} \bfseries 86.00 & 12.00 & 2.00 & 0.00 & 0.00 & 0.00 \\
+ & CRM & {\cellcolor[HTML]{C8E6C9}} \bfseries 50.33 & 35.00 & 11.00 & 3.67 & 0.00 & 0.00 \\
+ & UCB & {\cellcolor[HTML]{C8E6C9}} \bfseries 65.33 & 33.67 & 1.00 & 0.00 & 0.00 & 0.00 \\
+ & SEEDA & {\cellcolor[HTML]{C8E6C9}} \bfseries 64.33 & 5.00 & 30.67 & 0.00 & 0.00 & 0.00 \\
+ & SEEDA Plateau & {\cellcolor[HTML]{C8E6C9}} \bfseries 100.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+\multirow[c]{5}{*}{a = 1.0} & 3 + 3 & 14.67 & \bfseries 31.33 & 30.00 & {\cellcolor[HTML]{C8E6C9}} 21.33 & 2.67 & 0.00 \\
+ & CRM & 11.67 & 23.00 & \bfseries 31.33 & {\cellcolor[HTML]{C8E6C9}} 27.33 & 6.67 & 0.00 \\
+ & UCB & 11.67 & \bfseries 43.00 & 40.67 & {\cellcolor[HTML]{C8E6C9}} 4.67 & 0.00 & 0.00 \\
+ & SEEDA & 0.00 & 0.00 & \bfseries 58.00 & {\cellcolor[HTML]{C8E6C9}} 42.00 & 0.00 & 0.00 \\
+ & SEEDA Plateau & 0.00 & 0.00 & 3.33 & {\cellcolor[HTML]{C8E6C9}} \bfseries 96.67 & 0.00 & 0.00 \\
+\multirow[c]{5}{*}{a = 1.3} & 3 + 3 & 3.33 & 16.33 & \bfseries 44.00 & {\cellcolor[HTML]{C8E6C9}} 22.67 & 13.67 & 0.00 \\
+ & CRM & 5.33 & 11.67 & \bfseries 31.00 & {\cellcolor[HTML]{C8E6C9}} 31.00 & 20.33 & 0.67 \\
+ & UCB & 5.33 & 26.67 & \bfseries 59.00 & {\cellcolor[HTML]{C8E6C9}} 9.00 & 0.00 & 0.00 \\
+ & SEEDA & 0.00 & 0.00 & \bfseries 56.33 & {\cellcolor[HTML]{C8E6C9}} 42.00 & 1.67 & 0.00 \\
+ & SEEDA Plateau & 0.00 & 0.00 & 7.00 & {\cellcolor[HTML]{C8E6C9}} \bfseries 93.00 & 0.00 & 0.00 \\
+\multirow[c]{5}{*}{a = 3.4} & 3 + 3 & 1.67 & 1.67 & 7.67 & 23.33 & \bfseries 65.67 & {\cellcolor[HTML]{C8E6C9}} 0.00 \\
+ & CRM & 4.00 & 6.33 & 9.33 & 17.00 & \bfseries 36.00 & {\cellcolor[HTML]{C8E6C9}} 27.33 \\
+ & UCB & 0.00 & 0.00 & 7.67 & 35.67 & \bfseries 46.33 & {\cellcolor[HTML]{C8E6C9}} 10.33 \\
+ & SEEDA & 0.00 & 0.00 & 24.00 & \bfseries 31.33 & 27.67 & {\cellcolor[HTML]{C8E6C9}} 17.00 \\
+ & SEEDA Plateau & 5.00 & 0.00 & 0.00 & 14.00 & 33.00 & {\cellcolor[HTML]{C8E6C9}} \bfseries 48.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
