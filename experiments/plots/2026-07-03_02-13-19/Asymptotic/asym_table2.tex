@@ -1,0 +1,23 @@
+\begin{table}[H]
+\centering
+\caption{Recommendation \& allocation percentages (asymptotic, n = 300 cohorts). Shaded column: MTD (Dose 3). \textbf{Bold}: majority recommended or allocated dose per algorithm. Mean over 1000 repetitions, (std).}
+\label{tab:asym_table2}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|cccccc|cccccc}
+\toprule
+ & \multicolumn{6}{c|}{Recommended} & \multicolumn{6}{c}{Allocated} \\
+\cmidrule(lr){2-7}\cmidrule(lr){8-13}
+ & Dose 1 & Dose 2 & {\cellcolor[HTML]{C8E6C9}} Dose 3 & Dose 4 & Dose 5 & Dose 6 & Dose 1 & Dose 2 & {\cellcolor[HTML]{C8E6C9}} Dose 3 & Dose 4 & Dose 5 & Dose 6 \\
+\midrule
+Toxicity prob & 0.01 & 0.05 & {\cellcolor[HTML]{C8E6C9}} 0.15 & 0.2 & 0.45 & 0.6 & 0.01 & 0.05 & {\cellcolor[HTML]{C8E6C9}} 0.15 & 0.2 & 0.45 & 0.6 \\
+Efficacy prob & 0.1 & 0.35 & {\cellcolor[HTML]{C8E6C9}} 0.6 & 0.6 & 0.6 & 0.6 & 0.1 & 0.35 & {\cellcolor[HTML]{C8E6C9}} 0.6 & 0.6 & 0.6 & 0.6 \\
+\midrule
+3 + 3 & \makecell{2.80 \\ (1.25)} & \makecell{21.60 \\ (1.64)} & {\cellcolor[HTML]{C8E6C9}} \makecell{28.60 \\ (1.98)} & \bfseries \makecell{36.50 \\ (2.32)} & \makecell{10.50 \\ (3.02)} & \makecell{0.00 \\ (0.00)} & \makecell{3.12 \\ (16.36)} & \makecell{21.70 \\ (40.66)} & {\cellcolor[HTML]{C8E6C9}} \makecell{28.56 \\ (44.49)} & \bfseries \makecell{36.12 \\ (47.32)} & \makecell{10.46 \\ (30.06)} & \makecell{0.04 \\ (0.13)} \\
+CRM & \makecell{2.90 \\ (1.08)} & \makecell{12.60 \\ (2.25)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{32.80 \\ (3.78)} & \makecell{25.50 \\ (3.32)} & \makecell{21.80 \\ (2.31)} & \makecell{4.40 \\ (1.29)} & \makecell{3.22 \\ (16.73)} & \makecell{12.84 \\ (32.98)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{32.75 \\ (46.54)} & \makecell{25.28 \\ (43.04)} & \makecell{21.51 \\ (40.69)} & \makecell{4.39 \\ (20.15)} \\
+UCB & \makecell{0.10 \\ (0.22)} & \makecell{2.10 \\ (1.43)} & {\cellcolor[HTML]{C8E6C9}} \makecell{19.30 \\ (3.21)} & \bfseries \makecell{78.50 \\ (2.15)} & \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & \makecell{0.43 \\ (3.08)} & \makecell{2.49 \\ (13.86)} & {\cellcolor[HTML]{C8E6C9}} \makecell{24.00 \\ (35.39)} & \bfseries \makecell{71.45 \\ (37.02)} & \makecell{1.08 \\ (1.31)} & \makecell{0.54 \\ (0.36)} \\
+SEEDA & \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & {\cellcolor[HTML]{C8E6C9}} \makecell{46.90 \\ (3.51)} & \bfseries \makecell{49.60 \\ (2.66)} & \makecell{3.30 \\ (1.64)} & \makecell{0.20 \\ (0.27)} & \makecell{1.99 \\ (0.43)} & \makecell{5.43 \\ (1.92)} & {\cellcolor[HTML]{C8E6C9}} \makecell{45.18 \\ (12.43)} & \bfseries \makecell{45.88 \\ (12.47)} & \makecell{1.50 \\ (2.06)} & \makecell{0.01 \\ (0.09)} \\
+SEEDA Plateau & \makecell{3.60 \\ (1.64)} & \makecell{0.00 \\ (0.00)} & {\cellcolor[HTML]{C8E6C9}} \makecell{0.00 \\ (0.00)} & \bfseries \makecell{96.40 \\ (1.64)} & \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & \makecell{2.00 \\ (0.46)} & \makecell{5.25 \\ (1.90)} & {\cellcolor[HTML]{C8E6C9}} \makecell{44.93 \\ (14.21)} & \bfseries \makecell{46.04 \\ (14.16)} & \makecell{1.43 \\ (2.06)} & \makecell{0.34 \\ (0.09)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

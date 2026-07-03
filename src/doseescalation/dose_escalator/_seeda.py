@@ -73,7 +73,7 @@ class SEEDADoseEscalator(DoseEscalatorBase):
 
         alpha_t = self._C_1 * self._K * (
             np.log(2 * self._K / self._delta_1) / (2 * sum(self._N))
-        ) ** (self._gamma_1 / 2)
+        ) ** (1.0 / (self._gamma_1 * 2.0))
 
         admissible_set = self._dose_toxicity_curve(
             self._dose_levels, a_hat + alpha_t

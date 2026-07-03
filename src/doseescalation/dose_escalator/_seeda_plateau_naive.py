@@ -5,9 +5,9 @@ import numpy as np
 from ._seeda import SEEDADoseEscalator
 
 
-class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
+class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
     """
-    SEEDA-Plateau dose escalator.
+    SEEDA-Plateau dose escalator (naive variant).
     This class uses the SEEDA-Plateau Method proposed in
     "Learning for Dose Allocation in Adaptive Clinical
     Trials with Safety Constraints", which is more apt at
@@ -26,7 +26,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
         ucb_coefficient: float = 1,
         gamma_1: float = 3/2,
         delta_1: float = 0.05,
-        eta: float = 2,
+        eta: int = 2,
         is_training: bool = True,
         seed: float = 0,
         no_skip: bool = True,
@@ -85,7 +85,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
                     if (0 <= idx < self._K and
                         admissible_set[idx] and
                         self._validator.validate(idx)):
-                        if best_idx is None or F[idx] >= F[best_idx]:
+                        if best_idx is None or F[idx] > F[best_idx]:
                             best_idx = idx
                 self._I = best_idx if best_idx is not None else leader
 
@@ -112,6 +112,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
             # L1 (paper Alg. 2): the lowest admissible dose where the efficacy
             # plateau begins, i.e. the first dose whose pair (idx, idx+1) is
             # statistically flat.
+            """
             L_1 = self._K
             for idx in range(self._K - 1):
                 if (admissible_set[idx]
@@ -119,6 +120,20 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
                         and is_plateau_pair(idx)):
                     L_1 = idx
                     break
+            """
+            admissible_indices = [
+                idx
+                for idx in range(self._K)
+                if admissible_set[idx]
+            ]
+
+            L_1 = self._K
+
+            for k in admissible_indices:
+                for m in range(k, self._K - 1):
+                    if is_plateau_pair(m):
+                        L_1 = min(L_1, m)
+                        break
 
             # L2: highest safe dose by model toxicity (greedy toxicity rule).
             p_dle = self._dose_toxicity_curve(self._dose_levels, a_hat)

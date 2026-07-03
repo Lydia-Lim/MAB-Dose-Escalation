@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Asymptotic: allocation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:asym_alloc_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 0 & 1 & 2 & 3 & 4 & 5 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{8}{*}{a = 1.0} & 3 + 3 & 0.33 & 0.33 & {\cellcolor[HTML]{C8E6C9}} \bfseries 98.67 & 0.67 & 0.00 & 0.00 \\
+ & CRM & 0.33 & 0.33 & {\cellcolor[HTML]{C8E6C9}} 0.33 & \bfseries 98.90 & 0.10 & 0.00 \\
+ & UCB & 0.33 & 1.00 & {\cellcolor[HTML]{C8E6C9}} \bfseries 97.24 & 0.75 & 0.34 & 0.33 \\
+ & SEEDA & 1.67 & 6.00 & {\cellcolor[HTML]{C8E6C9}} 38.01 & \bfseries 45.32 & 9.00 & 0.00 \\
+ & SEEDA Original & 12.67 & 14.67 & {\cellcolor[HTML]{C8E6C9}} 18.33 & 17.67 & \bfseries 18.67 & 18.00 \\
+ & SEEDA Plateau & 2.33 & 9.00 & {\cellcolor[HTML]{C8E6C9}} \bfseries 52.00 & 36.33 & 0.00 & 0.33 \\
+ & SEEDA Plateau Fixed & 1.67 & 4.33 & {\cellcolor[HTML]{C8E6C9}} \bfseries 56.67 & 36.67 & 0.33 & 0.33 \\
+ & SEEDA Plateau Naive & 0.33 & 7.00 & {\cellcolor[HTML]{C8E6C9}} \bfseries 48.33 & 44.33 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,6 +1,6 @@
 import numpy as np
 
-from ._seeda_plateau import SEEDAPlateauDoseEscalator
+from ._seeda_plateau_original import SEEDAPlateauDoseEscalator
 
 
 class SEEDAPlateauFixedDoseEscalator(SEEDAPlateauDoseEscalator):

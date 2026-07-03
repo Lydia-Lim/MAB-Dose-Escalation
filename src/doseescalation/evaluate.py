@@ -2,7 +2,7 @@ import math
 import os
 import plotly.graph_objects as go
 from collections import Counter
-from doseescalation.dose_escalator import DoseEscalatorBase, SEEDADoseEscalator, SEEDAPlateauDoseEscalator
+from doseescalation.dose_escalator import DoseEscalatorBase, SEEDADoseEscalator, SEEDAOriginalDoseEscalator, SEEDAPlateauDoseEscalator
 from doseescalation.simulated_env import SimulatedEnv
 from plotly.subplots import make_subplots
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -51,7 +51,8 @@ def simulate(
     used instead (dose-independent efficacy).
     """
     _needs_efficacy = isinstance(
-        dose_escalator, (SEEDADoseEscalator, SEEDAPlateauDoseEscalator)
+        dose_escalator,
+        (SEEDADoseEscalator, SEEDAOriginalDoseEscalator, SEEDAPlateauDoseEscalator)
     )
     # UCB / SEEDA / SEEDA Plateau expose a separate recommendation through
     # non-training mode, while CRM / 3 + 3 have no such split (recommend == allocate):
@@ -144,9 +145,19 @@ def plot_dose_proposals(
         y_title="Number Of Trials",
     )
 
-    # Add traces for each algorithm in each environment. The correct dose (the
-    # toxicity MTD) is overlaid in green; every other dose is grey.
-    shown_other = shown_mtd = False
+    # Row titles default to fully vertical (textangle=90), which makes longer
+    # algorithm names (e.g. "SEEDA Plateau (Modified L1)") overlap with
+    # neighbouring rows. A 45-degree angle keeps every label readable within
+    # the default row height:
+    for annotation in fig.layout.annotations:
+        if annotation.text in algo_names:
+            annotation.textangle = 45
+
+    # Add traces for each algorithm in each environment:
+    #   - grey  : all proposals (base layer)
+    #   - yellow: toxicity MTD (from `mtds`, when provided and differs from optimal)
+    #   - green : optimal biological dose (from `correct_mtds`, top layer)
+    shown_other = shown_opt = shown_tox_mtd = False
     for row_idx, algo in enumerate(algo_names):
         for col_idx, env in enumerate(env_names):
             proposals = dose_proposals_map[env][algo]
@@ -157,48 +168,60 @@ def plot_dose_proposals(
                 correct = correct[algo]
             correct_props = [m for m in proposals if m == correct]
 
-            # Full distribution (its correct bar is covered by the overlay below):
+            # Resolve the toxicity MTD for this env:
+            tox_mtd = mtds[env] if mtds is not None else None
+            if isinstance(tox_mtd, dict):
+                tox_mtd = tox_mtd[algo]
+            tox_mtd_props = [m for m in proposals if m == tox_mtd] if tox_mtd is not None else []
+
+            # Base layer — all doses in grey:
             fig.add_trace(
                 go.Histogram(
                     x=proposals,
                     name="Other",
-                    marker_color=DEFAULT_COLORS[-1],
+                    marker_color='#7f7f7f',
                     showlegend=not shown_other,
-                    xbins=dict(  # bins used for histogram
-                        start=-0.5,
-                        end=n_dose_levels - 0.5,
-                        size=1,
-                    ),
+                    xbins=dict(start=-0.5, end=n_dose_levels - 0.5, size=1),
                 ),
-                row=row_idx + 1,
-                col=col_idx + 1,
-            )
-            fig.update_xaxes(
-                range=[-0.5, n_dose_levels - 0.5],
-                dtick=1,
                 row=row_idx + 1,
                 col=col_idx + 1,
             )
 
-            # correct-dose (MTD) overlay in green:
+            # Yellow overlay — toxicity MTD (only when it differs from the optimal dose):
+            if tox_mtd is not None and tox_mtd != correct:
+                fig.add_trace(
+                    go.Histogram(
+                        x=tox_mtd_props,
+                        name="Toxicity MTD",
+                        marker_color='#FFD700',
+                        showlegend=not shown_tox_mtd,
+                        xbins=dict(start=-0.5, end=n_dose_levels - 0.5, size=1),
+                    ),
+                    row=row_idx + 1,
+                    col=col_idx + 1,
+                )
+                shown_tox_mtd = shown_tox_mtd or len(tox_mtd_props) > 0
+
+            # Green overlay — optimal biological dose (top layer):
             fig.add_trace(
                 go.Histogram(
                     x=correct_props,
-                    name="MTD",
+                    name="Optimal dose",
                     marker_color=DEFAULT_COLORS[2],
-                    showlegend=not shown_mtd,
-                    xbins=dict(  # bins used for histogram
-                        start=-0.5,
-                        end=n_dose_levels - 0.5,
-                        size=1,
-                    ),
+                    showlegend=not shown_opt,
+                    xbins=dict(start=-0.5, end=n_dose_levels - 0.5, size=1),
                 ),
                 row=row_idx + 1,
                 col=col_idx + 1,
             )
+
             fig.update_xaxes(
                 range=[-0.5, n_dose_levels - 0.5],
-                dtick=1,
+                # Display doses as 1..n (paper's numbering) while the
+                # underlying data/bins stay 0-indexed:
+                tickmode="array",
+                tickvals=list(range(n_dose_levels)),
+                ticktext=[str(i + 1) for i in range(n_dose_levels)],
                 row=row_idx + 1,
                 col=col_idx + 1,
             )
@@ -208,18 +231,24 @@ def plot_dose_proposals(
                 col=col_idx + 1,
             )
 
-            # Make sure we only show each legend entry once:
             shown_other = shown_other or len(proposals) > 0
-            shown_mtd = shown_mtd or len(correct_props) > 0
+            shown_opt = shown_opt or len(correct_props) > 0
 
     title_text = title_text or "Number of dose allocations"
+    # Extra right margin so the 45-degree row-title labels aren't clipped at
+    # the canvas edge; added on top of (not eating into) the plot width:
+    row_label_margin = 200
     fig.update_layout(
         autosize=False,
-        width=unit_width * (len(env_names) + 1),
+        width=unit_width * (len(env_names) + 1) + row_label_margin,
         height=unit_height * len(algo_names),
         barmode="overlay",
         title_text=title_text,
-        legend_title_text="Correct dose",
+        legend_title_text="Dose",
+        # Pushed further right (x=1.3) so it clears the top row's row-title
+        # label (e.g. "3 + 3"), which otherwise sits directly under it:
+        legend=dict(x=1.3, xanchor="left", y=1, yanchor="top"),
+        margin=dict(r=row_label_margin),
     )
 
     if img_path:

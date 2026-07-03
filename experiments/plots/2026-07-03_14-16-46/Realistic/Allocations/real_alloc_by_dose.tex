@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Realistic: allocation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:real_alloc_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 0 & 1 & 2 & 3 & 4 & 5 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{8}{*}{a = 1.0} & 3 + 3 & 12.66 & 25.38 & {\cellcolor[HTML]{C8E6C9}} 25.35 & \bfseries 26.31 & 9.11 & 1.19 \\
+ & CRM & 12.61 & 22.43 & {\cellcolor[HTML]{C8E6C9}} \bfseries 30.67 & 20.02 & 11.92 & 2.35 \\
+ & UCB & 10.00 & 10.11 & {\cellcolor[HTML]{C8E6C9}} 14.46 & \bfseries 26.10 & 23.44 & 15.89 \\
+ & SEEDA & 11.84 & 17.44 & {\cellcolor[HTML]{C8E6C9}} 25.90 & \bfseries 26.69 & 17.53 & 0.60 \\
+ & SEEDA Original & 10.39 & 13.37 & {\cellcolor[HTML]{C8E6C9}} 18.61 & 19.03 & 19.25 & \bfseries 19.35 \\
+ & SEEDA Plateau & 10.70 & 15.31 & {\cellcolor[HTML]{C8E6C9}} 23.74 & \bfseries 24.85 & 15.07 & 10.33 \\
+ & SEEDA Plateau Fixed & 10.61 & 15.12 & {\cellcolor[HTML]{C8E6C9}} 24.15 & \bfseries 25.19 & 14.55 & 10.38 \\
+ & SEEDA Plateau Naive & 11.26 & 18.36 & {\cellcolor[HTML]{C8E6C9}} \bfseries 30.75 & 29.84 & 9.66 & 0.13 \\
+\bottomrule
+\end{tabular}
+\end{table}

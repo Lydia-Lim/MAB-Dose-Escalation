@@ -1,0 +1,17 @@
+\begin{table}[H]
+\centering
+\caption{Asymptotic: recommendation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:asym_rec_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 0 & 1 & 2 & 3 & 4 & 5 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{5}{*}{a = 1.0} & 3 + 3 & 2.80 & 21.60 & {\cellcolor[HTML]{C8E6C9}} 28.60 & \bfseries 36.50 & 10.50 & 0.00 \\
+ & CRM & 2.90 & 12.60 & {\cellcolor[HTML]{C8E6C9}} \bfseries 32.80 & 25.50 & 21.80 & 4.40 \\
+ & UCB & 0.10 & 2.10 & {\cellcolor[HTML]{C8E6C9}} 19.30 & \bfseries 78.50 & 0.00 & 0.00 \\
+ & SEEDA & 0.00 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 46.90 & \bfseries 49.60 & 3.30 & 0.20 \\
+ & SEEDA Plateau & 3.60 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 0.00 & \bfseries 96.40 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Realistic: recommendation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:real_rec_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 0 & 1 & 2 & 3 & 4 & 5 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{8}{*}{a = 1.0} & 3 + 3 & 2.70 & 21.10 & {\cellcolor[HTML]{C8E6C9}} 29.40 & \bfseries 37.80 & 9.00 & 0.00 \\
+ & CRM & 3.20 & 12.20 & {\cellcolor[HTML]{C8E6C9}} \bfseries 33.90 & 27.50 & 18.00 & 5.20 \\
+ & UCB & 0.10 & 0.80 & {\cellcolor[HTML]{C8E6C9}} 10.70 & \bfseries 59.90 & 25.20 & 3.30 \\
+ & SEEDA & 0.10 & 3.90 & {\cellcolor[HTML]{C8E6C9}} 34.70 & \bfseries 43.80 & 17.30 & 0.20 \\
+ & SEEDA (UCB) & 0.00 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 0.00 & 0.00 & 10.90 & \bfseries 89.10 \\
+ & SEEDA Plateau (UCB) & 5.20 & 0.90 & {\cellcolor[HTML]{C8E6C9}} 2.30 & \bfseries 65.40 & 25.80 & 0.40 \\
+ & SEEDA Plateau (Modified L1) & \bfseries 97.70 & 2.10 & {\cellcolor[HTML]{C8E6C9}} 0.20 & 0.00 & 0.00 & 0.00 \\
+ & SEEDA Plateau (Paper) & \bfseries 88.20 & 11.60 & {\cellcolor[HTML]{C8E6C9}} 0.20 & 0.00 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -26,7 +26,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
         ucb_coefficient: float = 1,
         gamma_1: float = 3/2,
         delta_1: float = 0.05,
-        eta: float = 2,
+        eta: int = 2,
         is_training: bool = True,
         seed: float = 0,
         no_skip: bool = True,
@@ -67,7 +67,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
             if len(F_filtered) == 0:
                 self._I = 0
             else:
-                if (self._l[L] - 1) % self._eta == 0:
+                if (self._l[L] - 1) % (self._eta + 1) == 0:
                     self._I = L
                 else:
                     for idx, admissible in enumerate(admissible_set):
@@ -79,7 +79,7 @@ class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
         else:
             def log_inv_frac(m: int) -> float:
                 return np.sqrt(
-                    self._c * np.log(np.sum(self._N) / self._N[m])
+                    self._c * np.log(np.sum(self._N)) / self._N[m]
                 )
 
             def is_diff_valid(m: int) -> bool:
