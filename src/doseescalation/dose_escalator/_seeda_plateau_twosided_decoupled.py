@@ -13,7 +13,7 @@ class SEEDAPlateauTwoSidedDecoupledDoseEscalator(SEEDAPlateauDoseEscalator):
     allocation policy is inherited unchanged.
 
     The two words in the name are the two changes vs. UCB's Plateau, both from the
-    L1 investigation (see ``SEEDA_PLATEAU_L1_INVESTIGATION.md``):
+    L1 investigation (see ``docs/SEEDA_PLATEAU_L1_INVESTIGATION.md``):
 
     - **"Two-sided" = no Part B.** UCB's Plateau flags an adjacent pair (m, m+1) as
       flat only if ``|q_hat_m - q_hat_{m+1}| <= beta_m + beta_{m+1}`` (Part A,
