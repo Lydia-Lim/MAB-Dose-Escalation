@@ -1,0 +1,27 @@
+\begin{table}[H]
+\centering
+\caption{Recommendation \& allocation percentages (realistic, n = 10 cohorts). Green column: optimal biological dose (Dose 3); the toxicity MTD is Dose 4. \textbf{Bold}: majority recommended or allocated dose per algorithm. Mean over 1000 repetitions, (std).}
+\label{tab:real_table2}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|cccccc|cccccc}
+\toprule
+ & \multicolumn{6}{c|}{Recommended} & \multicolumn{6}{c}{Allocated} \\
+\cmidrule(lr){2-7}\cmidrule(lr){8-13}
+ & Dose 1 & Dose 2 & \bfseries Dose 3 & Dose 4 & Dose 5 & Dose 6 & Dose 1 & Dose 2 & \bfseries Dose 3 & Dose 4 & Dose 5 & Dose 6 \\
+\midrule
+Toxicity prob & 0.01 & 0.05 & {\cellcolor[HTML]{C8E6C9}} 0.15 & 0.2 & 0.45 & 0.6 & 0.01 & 0.05 & {\cellcolor[HTML]{C8E6C9}} 0.15 & 0.2 & 0.45 & 0.6 \\
+Efficacy prob & 0.1 & 0.35 & {\cellcolor[HTML]{C8E6C9}} 0.6 & 0.6 & 0.6 & 0.6 & 0.1 & 0.35 & {\cellcolor[HTML]{C8E6C9}} 0.6 & 0.6 & 0.6 & 0.6 \\
+\midrule
+3 + 3 & \makecell{2.90 \\ (1.29)} & \makecell{21.10 \\ (1.67)} & {\cellcolor[HTML]{C8E6C9}} \makecell{26.70 \\ (3.67)} & \bfseries \makecell{39.60 \\ (2.63)} & \makecell{9.70 \\ (0.97)} & \makecell{0.00 \\ (0.00)} & \makecell{12.43 \\ (12.67)} & \makecell{24.54 \\ (26.05)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{26.48 \\ (23.93)} & \makecell{26.44 \\ (24.22)} & \makecell{8.95 \\ (13.20)} & \makecell{1.16 \\ (3.78)} \\
+CRM & \makecell{3.20 \\ (1.82)} & \makecell{15.90 \\ (1.14)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{31.20 \\ (3.72)} & \makecell{25.10 \\ (2.38)} & \makecell{19.30 \\ (3.82)} & \makecell{5.30 \\ (1.64)} & \makecell{12.88 \\ (15.85)} & \makecell{22.40 \\ (29.46)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{29.93 \\ (33.94)} & \makecell{19.36 \\ (28.49)} & \makecell{12.18 \\ (22.94)} & \makecell{3.25 \\ (11.25)} \\
+UCB & \makecell{0.00 \\ (0.00)} & \makecell{1.40 \\ (0.22)} & {\cellcolor[HTML]{C8E6C9}} \makecell{10.10 \\ (2.95)} & \bfseries \makecell{63.30 \\ (3.27)} & \makecell{22.20 \\ (2.25)} & \makecell{3.00 \\ (1.00)} & \makecell{10.00 \\ (0.00)} & \makecell{10.29 \\ (2.83)} & {\cellcolor[HTML]{C8E6C9}} \makecell{14.59 \\ (8.48)} & \bfseries \makecell{26.50 \\ (13.12)} & \makecell{22.47 \\ (14.35)} & \makecell{16.15 \\ (10.22)} \\
+SEEDA & \makecell{0.10 \\ (0.22)} & \makecell{4.30 \\ (1.82)} & {\cellcolor[HTML]{C8E6C9}} \makecell{35.60 \\ (2.41)} & \bfseries \makecell{43.20 \\ (2.41)} & \makecell{16.70 \\ (2.20)} & \makecell{0.10 \\ (0.22)} & \makecell{11.56 \\ (3.66)} & \makecell{17.90 \\ (6.10)} & {\cellcolor[HTML]{C8E6C9}} \makecell{25.68 \\ (8.15)} & \bfseries \makecell{27.02 \\ (8.99)} & \makecell{17.48 \\ (11.51)} & \makecell{0.36 \\ (2.51)} \\
+SEEDA (UCB) & \makecell{0.00 \\ (0.00)} & \makecell{0.10 \\ (0.22)} & {\cellcolor[HTML]{C8E6C9}} \makecell{0.30 \\ (0.45)} & \bfseries \makecell{61.40 \\ (4.84)} & \makecell{37.70 \\ (5.23)} & \makecell{0.50 \\ (0.35)} & \makecell{14.93 \\ (5.02)} & \makecell{19.49 \\ (2.84)} & {\cellcolor[HTML]{C8E6C9}} \makecell{21.17 \\ (3.60)} & \bfseries \makecell{21.89 \\ (4.28)} & \makecell{12.33 \\ (9.36)} & \makecell{10.19 \\ (1.37)} \\
+SEEDA Plateau (Paper) & \bfseries \makecell{92.40 \\ (2.86)} & \makecell{7.60 \\ (2.86)} & {\cellcolor[HTML]{C8E6C9}} \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & \makecell{0.00 \\ (0.00)} & \makecell{10.36 \\ (2.07)} & \makecell{14.68 \\ (6.69)} & {\cellcolor[HTML]{C8E6C9}} \bfseries \makecell{21.83 \\ (10.46)} & \makecell{20.05 \\ (8.27)} & \makecell{18.15 \\ (9.24)} & \makecell{14.93 \\ (8.56)} \\
+SEEDA Plateau (UCB) & \makecell{5.60 \\ (1.67)} & \makecell{0.70 \\ (0.45)} & {\cellcolor[HTML]{C8E6C9}} \makecell{3.30 \\ (1.25)} & \bfseries \makecell{64.00 \\ (5.05)} & \makecell{26.20 \\ (5.02)} & \makecell{0.20 \\ (0.27)} & \makecell{10.70 \\ (2.55)} & \makecell{15.15 \\ (6.47)} & {\cellcolor[HTML]{C8E6C9}} \makecell{23.67 \\ (9.51)} & \bfseries \makecell{24.89 \\ (9.32)} & \makecell{15.32 \\ (11.95)} & \makecell{10.27 \\ (1.74)} \\
+SEEDA Plateau (Two-sided, decoupled) & \bfseries \makecell{68.00 \\ (0.71)} & \makecell{3.60 \\ (1.64)} & {\cellcolor[HTML]{C8E6C9}} \makecell{13.50 \\ (2.32)} & \makecell{11.10 \\ (1.85)} & \makecell{3.80 \\ (2.02)} & \makecell{0.00 \\ (0.00)} & \makecell{10.77 \\ (2.67)} & \makecell{14.97 \\ (6.07)} & {\cellcolor[HTML]{C8E6C9}} \makecell{23.70 \\ (9.36)} & \bfseries \makecell{24.99 \\ (9.15)} & \makecell{15.22 \\ (11.78)} & \makecell{10.35 \\ (2.23)} \\
+SEEDA Plateau (Two-sided, decoupled, NoLog) & \bfseries \makecell{68.00 \\ (7.10)} & \makecell{3.80 \\ (1.75)} & {\cellcolor[HTML]{C8E6C9}} \makecell{12.10 \\ (2.16)} & \makecell{10.80 \\ (2.75)} & \makecell{5.10 \\ (2.07)} & \makecell{0.20 \\ (0.27)} & \makecell{12.67 \\ (4.45)} & \makecell{16.51 \\ (5.71)} & {\cellcolor[HTML]{C8E6C9}} \makecell{22.26 \\ (6.81)} & \bfseries \makecell{23.33 \\ (5.85)} & \makecell{14.97 \\ (10.43)} & \makecell{10.26 \\ (1.71)} \\
+\bottomrule
+\end{tabular}
+}%
+\end{table}

@@ -32,7 +32,7 @@ fixes it. It does three things:
            obviously plateauing) efficacy curve.
 
 Run from the repo root (with the package installed via `pip install -e .`):
-    python experiments/l1_diagnosis.py
+    python experiments/archive/l1_diagnosis.py
 """
 
 import warnings
@@ -52,7 +52,7 @@ from doseescalation.dose_escalator import (
 from doseescalation.simulated_env import SimulatedEnv
 
 
-# --- Experiment settings (mirrors experiments/benchmarks.ipynb) -------------
+# --- Experiment settings (mirrors experiments/archive/benchmarks.ipynb) ----
 def dose_toxic_curve(dose_levels, a_hat):
     return np.power((np.tanh(dose_levels) + 1) / 2, a_hat)
 

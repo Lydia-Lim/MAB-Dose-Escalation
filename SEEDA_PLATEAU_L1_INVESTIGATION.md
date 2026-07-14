@@ -5,7 +5,7 @@ got the recommendation to match. Paper: Shen, Wang, Villar, van der Schaar,
 *Learning for Dose Allocation in Adaptive Clinical Trials with Safety Constraints*,
 ICML 2020 (`SEEDA.pdf`), synthetic scenario 1.
 
-The failure was first diagnosed in `experiments/l1_diagnosis.py` (kept for
+The failure was first diagnosed in `experiments/archive/l1_diagnosis.py` (kept for
 historical reference; its header notes a class-naming caveat now that the
 pairwise and entire-tail L1 rules live in separate classes). This document is
 the up-to-date investigation and class map.

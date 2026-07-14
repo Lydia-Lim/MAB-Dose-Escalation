@@ -75,6 +75,17 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
                     leader = idx
         return leader
 
+    def safe_doses(self):
+        """
+        Same as the base class, but guarded against the initial round-robin
+        (see `propose`): `_calc_model_params` divides by `sum(self._N)`, which
+        is still 0 while doses are being sampled for the first time, so no
+        dose is reported safe until every dose has been visited once.
+        """
+        if self._init_idx < self._K:
+            return [False] * self._K
+        return super().safe_doses()
+
     def propose(self) -> int:
         # Initial phase (Algorithm 2): sample each dose once, in ascending
         # order, before any model-based selection. Returned for both the
