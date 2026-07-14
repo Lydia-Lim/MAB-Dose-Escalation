@@ -7,12 +7,19 @@ from ._seeda import SEEDADoseEscalator
 
 class SEEDAPlateauDoseEscalator(SEEDADoseEscalator):
     """
-    SEEDA-Plateau dose escalator.
-    This class uses the SEEDA-Plateau Method proposed in
-    "Learning for Dose Allocation in Adaptive Clinical
-    Trials with Safety Constraints", which is more apt at
-    dealing with pleateauing efficacy as the drug dosage
-    levels increase.
+    (Original) SEEDA-Plateau dose escalator — this is UCB's original Plateau (labelled
+    "SEEDA Plateau (UCB)" in the benchmarks).
+
+    It uses the SEEDA-Plateau Method proposed in "Learning for Dose Allocation in
+    Adaptive Clinical Trials with Safety Constraints", which is more apt at dealing
+    with plateauing efficacy as the drug dosage levels increase.
+
+    Its L1 turning-point rule requires the *entire upper tail* of doses to be flat
+    (every adjacent pair from a candidate dose upward passes the plateau test),
+    unlike the paper/naive variant (``SEEDAPlateauNaiveDoseEscalator``) which only
+    needs the first flat pair. The two corrected variants
+    ``SEEDAPlateauTwoSidedDecoupledDoseEscalator`` and its NoLog subclass build on
+    this class.
     """
 
     def __init__(

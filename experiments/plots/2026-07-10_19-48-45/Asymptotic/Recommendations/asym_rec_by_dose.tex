@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\caption{Asymptotic: recommendation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:asym_rec_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 1 & 2 & 3 & 4 & 5 & 6 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{9}{*}{a = 1.0} & 3 + 3 & 2.40 & 19.90 & {\cellcolor[HTML]{C8E6C9}} 27.60 & \bfseries 39.90 & 10.20 & 0.00 \\
+ & CRM & 2.70 & 13.60 & {\cellcolor[HTML]{C8E6C9}} \bfseries 31.30 & 26.60 & 22.10 & 3.70 \\
+ & UCB & 0.10 & 3.10 & {\cellcolor[HTML]{C8E6C9}} 20.30 & \bfseries 76.50 & 0.00 & 0.00 \\
+ & SEEDA & 0.00 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 47.20 & \bfseries 49.30 & 3.40 & 0.10 \\
+ & SEEDA (UCB) & 0.00 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 0.00 & \bfseries 100.00 & 0.00 & 0.00 \\
+ & SEEDA Plateau (Paper) & \bfseries 89.20 & 10.80 & {\cellcolor[HTML]{C8E6C9}} 0.00 & 0.00 & 0.00 & 0.00 \\
+ & SEEDA Plateau (UCB) & 5.50 & 0.00 & {\cellcolor[HTML]{C8E6C9}} 0.00 & \bfseries 94.50 & 0.00 & 0.00 \\
+ & SEEDA Plateau (Two-sided, decoupled) & 0.70 & 2.90 & {\cellcolor[HTML]{C8E6C9}} \bfseries 86.70 & 9.70 & 0.00 & 0.00 \\
+ & SEEDA Plateau (Two-sided, decoupled, NoLog) & 0.00 & 0.10 & {\cellcolor[HTML]{C8E6C9}} \bfseries 94.60 & 5.30 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}

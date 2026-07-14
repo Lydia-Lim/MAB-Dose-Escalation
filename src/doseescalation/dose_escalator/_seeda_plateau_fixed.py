@@ -6,6 +6,7 @@ from ._seeda_plateau_original import SEEDAPlateauDoseEscalator
 class SEEDAPlateauFixedDoseEscalator(SEEDAPlateauDoseEscalator):
     """
     SEEDA-Plateau with a robust plateau-onset (L1) recommendation rule.
+    Confirms L1 issue with the Plateau version from Algorithm 2 (SEEDA paper).
 
     Only the non-training *recommendation* differs from
     ``SEEDAPlateauDoseEscalator``; the allocation / training policy is
@@ -43,11 +44,11 @@ class SEEDAPlateauFixedDoseEscalator(SEEDAPlateauDoseEscalator):
        but noise gives q_hat_2 = 0.61 > q_hat_3 = 0.56, so the strict
        ``q_hat_m <= q_hat_{m+1}`` requirement rejects the real plateau pair.
 
-    This is NOT a coding mistake and NOT the UCB coefficient: the rest of the
-    code matches Algorithms 1-2, and both c=1 and the paper's c in (2, 2.5) give
-    0% correct identification. It is a sensitivity limitation of the pairwise
-    test at these per-dose sample sizes. A "more obvious" plateau does not help
-    either - a sharper curve makes the low doses even less attractive to sample,
+    The rest of the code matches Algorithms 1-2, and both c=1 and the paper's c
+    in (2, 2.5) give 0% correct identification. It is a sensitivity limitation
+    of the pairwise test at these per-dose sample sizes implemented following
+    Algorithm 2 in the paper. A "more obvious" plateau does not help either:
+    a sharper curve makes the low doses even less attractive to sample,
     widening (not tightening) their confidence intervals.
 
     ====================================================================

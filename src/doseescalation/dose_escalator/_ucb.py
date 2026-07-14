@@ -67,6 +67,11 @@ class UCBDoseEscalator(DoseEscalatorBase):
         # best action/dose is the one with the highest UCB
         return ucbs.index(max(ucbs))
 
+    def safe_doses(self):
+        """Per-dose boolean mask of doses whose estimated toxicity is <= TTL."""
+        return [p_dle <= self._ttl
+                for p_dle in self._estimator.predict(self._dose_levels)]
+
     def update(
         self,
         dose_level_index: int,

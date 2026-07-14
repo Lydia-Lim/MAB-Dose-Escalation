@@ -13,6 +13,9 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
     Trials with Safety Constraints", which is more apt at
     dealing with pleateauing efficacy as the drug dosage
     levels increase.
+
+    This version is a faithful implementation of Algorithm 2
+    described in the paper.
     """
 
     def __init__(
@@ -49,6 +52,17 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
         self._eta = eta
         self._l = np.array([0] * self._K)
 
+        # Paper Algorithm 2 initialization: N_k = 0, q_hat_k = 0, p_hat_k = 0,
+        # then "sample each dose once" before any leader/UCB selection.
+        # The base SEEDADoseEscalator instead seeds N_k = 1 and q_hat_k = q_hat
+        # (the increasing efficacy prior), which makes the leader
+        # L(t) = argmax_k q_hat_k jump to the top dose from the very
+        # first cohort and never revisit the low doses.
+        self._q_hat = np.zeros(self._K)
+        self._p_hat = np.zeros(self._K)
+        self._N = np.array([0] * self._K)
+        self._init_idx = 0  # next dose to sample during the initial round-robin
+
     def _leader(self, admissible_set) -> int:
         """
         Finds L(t): the admissible, validatable dose with the highest estimated efficacy.
@@ -62,6 +76,13 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
         return leader
 
     def propose(self) -> int:
+        # Initial phase (Algorithm 2): sample each dose once, in ascending
+        # order, before any model-based selection. Returned for both the
+        # allocation and the interim recommendation so we never call
+        # _calc_model_params (which divides by sum(N)) while all N = 0.
+        if self._init_idx < self._K:
+            return self._init_idx
+
         a_hat, admissible_set, F, _ = self._calc_model_params()
         if self._is_training:
             leader = self._leader(admissible_set)
@@ -94,7 +115,7 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
         else:
  
             def conf_width(m: int) -> float:
-                # sqrt(c * log(n) / N_m), per Algorithm 2's L1 test.
+                # sqrt(c * log(n) / N_m), per Algorithm 2's L1 test:
                 return np.sqrt(
                     self._c * np.log(np.sum(self._N)) / self._N[m]
                 )
@@ -102,7 +123,7 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
             def is_plateau_pair(m: int) -> bool:
                 # Doses m and m+1 are "statistically equal" (plateau)
                 # when their efficacy gap is within the combined
-                # confidence width and is non-decreasing.
+                # confidence width and is non-decreasing:
                 diff = np.abs(self._q_hat[m] - self._q_hat[m + 1])
                 return (
                     diff <= conf_width(m) + conf_width(m + 1)
@@ -112,15 +133,6 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
             # L1 (paper Alg. 2): the lowest admissible dose where the efficacy
             # plateau begins, i.e. the first dose whose pair (idx, idx+1) is
             # statistically flat.
-            """
-            L_1 = self._K
-            for idx in range(self._K - 1):
-                if (admissible_set[idx]
-                        and self._validator.validate(idx)
-                        and is_plateau_pair(idx)):
-                    L_1 = idx
-                    break
-            """
             admissible_indices = [
                 idx
                 for idx in range(self._K)
@@ -155,3 +167,7 @@ class SEEDAPlateauNaiveDoseEscalator(SEEDADoseEscalator):
         Update the escalator with the environment feedback
         """
         super().update(dose_level_index, cohort_size, n_dle, n_efficate)
+        # Advance the initial round-robin once the sampled dose has been
+        # observed, so the next cohort samples the next dose.
+        if self._init_idx < self._K:
+            self._init_idx += 1

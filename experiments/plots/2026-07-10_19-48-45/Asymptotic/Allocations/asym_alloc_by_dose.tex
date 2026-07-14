@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\caption{Asymptotic: allocation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:asym_alloc_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 1 & 2 & 3 & 4 & 5 & 6 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{9}{*}{a = 1.0} & 3 + 3 & 2.72 & 20.02 & {\cellcolor[HTML]{C8E6C9}} 27.57 & \bfseries 39.47 & 10.17 & 0.04 \\
+ & CRM & 3.02 & 13.83 & {\cellcolor[HTML]{C8E6C9}} \bfseries 31.26 & 26.38 & 21.81 & 3.69 \\
+ & UCB & 0.43 & 3.44 & {\cellcolor[HTML]{C8E6C9}} 24.83 & \bfseries 69.67 & 1.09 & 0.53 \\
+ & SEEDA & 1.98 & 5.19 & {\cellcolor[HTML]{C8E6C9}} 44.91 & \bfseries 45.67 & 2.22 & 0.02 \\
+ & SEEDA (UCB) & 17.84 & 22.24 & {\cellcolor[HTML]{C8E6C9}} 28.53 & \bfseries 28.57 & 2.47 & 0.34 \\
+ & SEEDA Plateau (Paper) & 0.39 & 4.28 & {\cellcolor[HTML]{C8E6C9}} \bfseries 44.34 & 43.95 & 6.00 & 1.04 \\
+ & SEEDA Plateau (UCB) & 1.95 & 5.26 & {\cellcolor[HTML]{C8E6C9}} 44.94 & \bfseries 45.24 & 2.25 & 0.36 \\
+ & SEEDA Plateau (Two-sided, decoupled) & 1.97 & 5.29 & {\cellcolor[HTML]{C8E6C9}} 44.73 & \bfseries 45.25 & 2.41 & 0.35 \\
+ & SEEDA Plateau (Two-sided, decoupled, NoLog) & 17.26 & 21.45 & {\cellcolor[HTML]{C8E6C9}} 28.93 & \bfseries 28.96 & 3.05 & 0.35 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,6 +1,5 @@
 from typing import Callable, Sequence
 import numpy as np
-from scipy.optimize import newton
 
 from ._base import DoseEscalatorBase
 from ._validate import Validator, NoOpValidator, NoSkipValidator
@@ -78,12 +77,21 @@ class SEEDADoseEscalator(DoseEscalatorBase):
         admissible_set = self._dose_toxicity_curve(
             self._dose_levels, a_hat + alpha_t
         ) <= self._ttl
-        # Paper eq. (4): F(p, s, n) = p + sqrt(c * log(n) / s), where n = sum(N), s = N_k.
-        # The original code was missing log():
-        #F = self._q_hat + np.sqrt(sum(self._N) * self._c / self._N)
+        # Paper eq. (4): F(p, s, n) = p + sqrt(c * log(n) / s), where n = sum(N),
+        # s = N_k. (The no-log bonus variant is SEEDA (UCB).)
         F = self._q_hat + np.sqrt(np.log(sum(self._N)) * self._c / self._N)
         F_filtered = F[admissible_set]
         return a_hat, admissible_set, F, F_filtered
+
+    def safe_doses(self):
+        """
+        Per-dose boolean mask of the doses this design currently declares safe,
+        i.e. the admissible set {k : p_k(a_hat + alpha_t) <= theta}. This is the
+        SEEDA safety classification used in the false-alarm (Lemma 1) and
+        miss-detection (Lemma 2) error metrics of Figure 1.
+        """
+        _, admissible_set, _, _ = self._calc_model_params()
+        return [bool(x) for x in admissible_set]
 
     def propose(self) -> int:
         a_hat, admissible_set, F, F_filtered = self._calc_model_params()
@@ -101,18 +109,6 @@ class SEEDADoseEscalator(DoseEscalatorBase):
                     self._I = best_idx
             return self._I
         else:
-            p_dle = self._dose_toxicity_curve(self._dose_levels, a_hat)
-
-            # prop_idx = np.argmax(self._q_hat[p_dle <= self._ttl])
-            # If we assume monotonic treatment these should be identical.
-            """max_idx = 0
-            for idx in range(len(p_dle)):
-                if (self._validator.validate(idx) and
-                        p_dle[idx] <= self._ttl and
-                        p_dle[idx] >= p_dle[max_idx]):
-                    max_idx = idx
-            return max_idx"""
-    
             # Recommendation rule from §5.1.1: among safe doses, pick the
             # highest-efficacy one (not the highest-toxicity one because
             # efficacy is not assumed monotonic in SEEDA):
@@ -146,29 +142,20 @@ class SEEDADoseEscalator(DoseEscalatorBase):
         ) / (self._N[dose_level_index] + cohort_size)
         self._N[dose_level_index] = self._N[dose_level_index] + cohort_size
         
-        # Solve dose_toxicity_curve(d, a_hat) = p_hat[i] for a_hat using
-        # Newton's method with the analytical derivative. For curves of the
-        # form base^a_hat, the derivative w.r.t. a_hat is base^a_hat * ln(base),
-        # where ln(base) = ln(curve(d, 1)). Warm-starting from the previous
-        # estimate avoids the oscillation that a random x0 can cause.
+        # Solve dose_toxicity_curve(d, a_hat) = p_hat[i] for a_hat. For curves
+        # of the form base^a_hat (base = curve(d, 1)) this inverts in closed
+        # form: a_hat = log(p_hat) / log(base).
+        #
+        # This replaces the warm-started Newton solve.
+        # For low-toxicity doses base^a is nearly flat, so once an early
+        # p_hat ~= 0 pushed a_hat large, Newton failed to converge and the
+        # except-clause kept the stale (inflated) value forever: a_hat reached
+        # ~4-8 vs the true ~1, which made unsafe doses look admissible. The
+        # closed form recomputes from the current p_hat each update, so it
+        # self-corrects as p_hat converges.
         d = self._dose_levels[dose_level_index]
         log_base = np.log(self._dose_toxicity_curve(dose_levels=d, a_hat=1))
-        # Clip to avoid underflow issues:
-        target = float(np.clip(self._p_hat[dose_level_index], 1e-6, 1 - 1e-6))
-        try:
-            self._a_hat_doses[dose_level_index] = newton(
-                lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) - target,
-                fprime=lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) * log_base,
-                x0=self._a_hat_doses[dose_level_index],
-                maxiter=100,
-            )
-        except RuntimeError:
-            # Ill-conditioned: keep the previous estimate:
-            pass
 
-        """
-        self._a_hat_doses[dose_level_index] = newton(
-            lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) - self._p_hat[dose_level_index],
-            fprime=lambda x: self._dose_toxicity_curve(dose_levels=d, a_hat=x) * log_base,
-            x0=self._a_hat_doses[dose_level_index],
-        )"""
+        # Clip to avoid log(0) / underflow issues:
+        target = float(np.clip(self._p_hat[dose_level_index], 1e-6, 1 - 1e-6))
+        self._a_hat_doses[dose_level_index] = np.log(target) / log_base

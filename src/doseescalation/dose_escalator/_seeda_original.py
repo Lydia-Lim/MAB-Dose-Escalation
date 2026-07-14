@@ -1,6 +1,5 @@
 from typing import Callable, Sequence
 import numpy as np
-from scipy.optimize import newton
 
 from ._base import DoseEscalatorBase
 from ._validate import Validator, NoOpValidator, NoSkipValidator
@@ -48,14 +47,7 @@ class SEEDAOriginalDoseEscalator(DoseEscalatorBase):
         ))) ** (- 1 / self._gamma_1)) / 30
         self._is_training = is_training
 
-        # np.random.seed(seed) reseeds the GLOBAL numpy RNG, but the shared
-        # SimulatedEnv also draws its DLE / efficacy events from that same global
-        # RNG. Reseeding it (to a fixed seed) once per constructed escalator
-        # freezes the environment's outcome sequence across trials, collapsing
-        # every algorithm's recommendations to a single dose. Use an isolated
-        # RandomState instead (as the current SEEDADoseEscalator does):
-        # np.random.seed(seed)
-        # self._a_hat_doses = np.random.gamma(shape=1, scale=1, size=self._K)
+        # Isolated RNG for the per-dose a_hat initialisation:
         self._rng = np.random.RandomState(seed)
         self._a_hat_doses = self._rng.gamma(shape=1, scale=1, size=self._K)
         self._dose_toxicity_curve = dose_toxicity_curve
@@ -90,6 +82,15 @@ class SEEDAOriginalDoseEscalator(DoseEscalatorBase):
         F_filtered = F[admissible_set]
         return a_hat, admissible_set, F, F_filtered
 
+    def safe_doses(self):
+        """
+        Per-dose boolean mask of the doses this design currently declares safe,
+        i.e. the admissible set {k : p_k(a_hat + alpha_t) <= theta} (Lemma 1/2).
+        Used for the false-alarm / miss-detection error metrics of Figure 1.
+        """
+        _, admissible_set, _, _ = self._calc_model_params()
+        return [bool(x) for x in admissible_set]
+
     def propose(self) -> int:
         a_hat, admissible_set, F, F_filtered = self._calc_model_params()
 
@@ -97,7 +98,7 @@ class SEEDAOriginalDoseEscalator(DoseEscalatorBase):
             if len(F_filtered) == 0:
                 self._I = 0
             else:
-                # Pick argmax, or select largest arm if tied.
+                # Pick argmax, or select largest arm if tied:
                 for idx, admissible in enumerate(admissible_set):
                     if (admissible and
                             self._validator.validate(idx) and
@@ -107,8 +108,8 @@ class SEEDAOriginalDoseEscalator(DoseEscalatorBase):
         else:
             p_dle = self._dose_toxicity_curve(self._dose_levels, a_hat)
 
-            # prop_idx = np.argmax(self._q_hat[p_dle <= self._ttl])
-            # If we assume monotonic treatment these should be identical.
+            # Recommend the highest safe dose by model toxicity (the toxicity
+            # MTD); UCB's original SEEDA assumes efficacy is monotonic in dose.
             max_idx = 0
             for idx in range(len(p_dle)):
                 if (self._validator.validate(idx) and
@@ -138,33 +139,14 @@ class SEEDAOriginalDoseEscalator(DoseEscalatorBase):
             + n_dle
         ) / (self._N[dose_level_index] + cohort_size)
         self._N[dose_level_index] = self._N[dose_level_index] + cohort_size
-        # Original (unguarded) newton solve — hard-crashes with a RuntimeError
-        # when it fails to converge, which happens for some doses over long
-        # (asymptotic) runs:
-        # self._a_hat_doses[dose_level_index] = newton(
-        #     lambda x: (
-        #         self._dose_toxicity_curve(
-        #             dose_levels=self._dose_levels[dose_level_index],
-        #             a_hat=x
-        #         ) - self._p_hat[dose_level_index]
-        #     ),
-        #     x0=np.random.uniform(0, 5)
-        # )
-        # Same solve, but keep the previous estimate on non-convergence instead
-        # of raising (mirrors the guard in the current SEEDADoseEscalator):
-        try:
-            self._a_hat_doses[dose_level_index] = newton(
-                lambda x: (
-                    self._dose_toxicity_curve(
-                        dose_levels=self._dose_levels[dose_level_index],
-                        a_hat=x
-                    ) - self._p_hat[dose_level_index]
-                ),
-                # Draw from the isolated RNG so we don't perturb the global
-                # numpy RNG that the shared SimulatedEnv relies on:
-                # x0=np.random.uniform(0, 5)
-                x0=self._rng.uniform(0, 5)
-            )
-        except RuntimeError:
-            # Ill-conditioned: keep the previous estimate.
-            pass
+        # Solve dose_toxicity_curve(d, a_hat) = p_hat[i] for a_hat. For curves
+        # of the form base^a_hat (base = curve(d, 1)) this inverts in closed
+        # form: a_hat = log(p_hat) / log(base). This replaces the Newton solve
+        # (from the original code), which for low-toxicity doses could stick at an
+        # inflated a_hat (~4-8 vs the true ~1) and make unsafe doses look
+        # admissible; the closed form recomputes from the current p_hat each
+        # update, so it self-corrects.
+        d = self._dose_levels[dose_level_index]
+        log_base = np.log(self._dose_toxicity_curve(dose_levels=d, a_hat=1))
+        target = float(np.clip(self._p_hat[dose_level_index], 1e-6, 1 - 1e-6))
+        self._a_hat_doses[dose_level_index] = np.log(target) / log_base

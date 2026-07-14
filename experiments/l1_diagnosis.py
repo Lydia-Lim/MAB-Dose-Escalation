@@ -2,6 +2,20 @@
 Diagnosis of the SEEDA-Plateau L1 (plateau-onset) failure.
 ============================================================
 
+EARLY DIAGNOSTIC SCRIPT, kept for historical reference. This was the first
+script to demonstrate the L1 (plateau-onset) failure and motivate the
+"Modified L1" fix, written before the pairwise-vs-entire-tail L1 rules were
+split into separate classes. At the time, `SEEDAPlateauDoseEscalator` meant
+the paper-faithful *pairwise* L1 rule; that class has since been renamed to
+`SEEDAPlateauNaiveDoseEscalator`, and the name `SEEDAPlateauDoseEscalator`
+now refers to a different rule (entire-upper-tail-flat, "Plateau (UCB)").
+Re-running this script therefore evaluates the hand-computed "paper's
+pairwise L1 test" (PART A) against `SEEDAPlateauDoseEscalator`'s *current*
+(different) behaviour, so `esc_paper.propose()`'s output no longer matches
+what the hand-computed pairwise numbers above it describe. See
+`SEEDA_PLATEAU_L1_INVESTIGATION.md` for the current, up-to-date investigation
+and class map.
+
 This script empirically proves *why* SEEDA-Plateau recommends dose 0 almost
 every time, and *why* the modified L1 rule (SEEDAPlateauFixedDoseEscalator)
 fixes it. It does three things:

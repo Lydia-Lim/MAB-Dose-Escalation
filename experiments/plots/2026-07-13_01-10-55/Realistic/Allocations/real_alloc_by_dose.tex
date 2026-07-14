@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\caption{Realistic: allocation \% by dose level (green = correct dose / MTD, bold = majority dose).}
+\label{tab:real_alloc_by_dose}
+\begin{tabular}{llrrrrrr}
+\toprule
+ & Dose & 1 & 2 & 3 & 4 & 5 & 6 \\
+Scenario & Algorithm &  &  &  &  &  &  \\
+\midrule
+\multirow[c]{9}{*}{a = 1.0} & 3 + 3 & 12.28 & 23.14 & {\cellcolor[HTML]{C8E6C9}} 25.90 & \bfseries 28.22 & 9.38 & 1.08 \\
+ & CRM & 12.16 & 21.52 & {\cellcolor[HTML]{C8E6C9}} \bfseries 31.57 & 18.79 & 12.79 & 3.17 \\
+ & UCB & 10.00 & 10.13 & {\cellcolor[HTML]{C8E6C9}} 14.71 & \bfseries 25.65 & 23.40 & 16.11 \\
+ & SEEDA & 11.67 & 17.58 & {\cellcolor[HTML]{C8E6C9}} 25.56 & \bfseries 26.84 & 17.86 & 0.49 \\
+ & SEEDA (UCB) & 15.22 & 19.47 & {\cellcolor[HTML]{C8E6C9}} 21.29 & \bfseries 22.24 & 11.61 & 10.17 \\
+ & SEEDA Plateau (Paper) & 10.55 & 14.53 & {\cellcolor[HTML]{C8E6C9}} \bfseries 22.42 & 20.80 & 17.19 & 14.51 \\
+ & SEEDA Plateau (UCB) & 10.68 & 14.90 & {\cellcolor[HTML]{C8E6C9}} 23.97 & \bfseries 24.65 & 15.34 & 10.46 \\
+ & SEEDA Plateau (Two-sided, decoupled) & 10.65 & 14.74 & {\cellcolor[HTML]{C8E6C9}} 23.74 & \bfseries 25.22 & 15.34 & 10.31 \\
+ & SEEDA Plateau (Two-sided, decoupled, NoLog) & 12.91 & 16.97 & {\cellcolor[HTML]{C8E6C9}} 22.45 & \bfseries 23.68 & 13.71 & 10.28 \\
+\bottomrule
+\end{tabular}
+\end{table}
