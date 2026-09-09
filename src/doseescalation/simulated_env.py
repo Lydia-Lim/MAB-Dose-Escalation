@@ -5,7 +5,6 @@ from typing import Callable, Sequence
 class SimulatedEnv:
     """
     Simulated environment for dose escalation studies.
-    An example usage can be found in `tests/test_simulated_env.py`.
     """
     def __init__(
         self,

@@ -17,3 +17,13 @@ class DoseEscalatorBase(ABC):
         """
         Update the escalator with the environment feedback.
         """
+
+    @property
+    def stopped(self) -> bool:
+        """
+        Whether the design has terminated the trial and enrols no further
+        patients (e.g. 3 + 3 once it declares an MTD). Model-based designs that
+        keep allocating for the whole horizon (CRM, UCB, SEEDA, ...) return
+        False, which is the default here.
+        """
+        return False

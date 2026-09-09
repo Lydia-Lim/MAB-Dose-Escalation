@@ -179,3 +179,57 @@ class TanhIntegrativeEstimator(EstimatorBase):
 
     def predict(self, x: Sequence[float]) -> Sequence[float]:
         return self._hyperbolic_tanh(x, self._est_a_hat)
+
+
+class CRMEstimator(TanhIntegrativeEstimator):
+    """
+    Continual Reassessment Method (CRM) estimator for the SEEDA paper's CRM
+    baseline. It reuses ``TanhIntegrativeEstimator``'s one-parameter power
+    model ``p_k(a) = ((tanh(d_k) + 1) / 2) ** a`` and prior on ``a``, changing
+    only the two things that stop the parent class being usable as a live CRM:
+
+    1. **Online.** It accumulates per-dose sufficient statistics (patients,
+       DLTs) across successive ``fit`` calls, because ``CRMDoseEscalator``
+       feeds it one cohort at a time (the parent treats each ``fit`` as the
+       whole dataset and keeps no history).
+    2. **Fast.** The posterior-mean ``a_hat`` is computed by grid quadrature
+       over ``a`` instead of the parent's 1e7-sample Monte-Carlo integration,
+       which makes per-cohort refitting cheap enough for 1000 x 300-cohort
+       trials.
+
+    The paper's CRM prior is ``a ~ Exp(mean 0.5) = Gamma(shape 1, rate 2)``,
+    the default here. Sharing one parameter across doses means an un-sampled
+    dose still gets a model-based toxicity estimate, unlike a per-dose average.
+    """
+
+    def __init__(
+        self,
+        prior_scale: float = 1.0,
+        prior_rate: float = 2.0,
+        a_max: float = 20.0,
+        n_grid: int = 1000,
+    ):
+        super().__init__(prior_scale=prior_scale, prior_rate=prior_rate)
+        self._a_grid = np.linspace(1e-6, a_max, n_grid)
+        self._prior_grid = self._prior(self._a_grid)
+        self._n: dict = {}   # dose level -> total patients
+        self._s: dict = {}   # dose level -> total DLTs
+
+    def fit(self,
+            x: Sequence[Tuple[int, float]] = None,
+            y: Sequence[int] = None):
+        if not (x or y):
+            return
+        # Accumulate sufficient statistics per dose:
+        for (count, dose), n_dle in zip(x, y):
+            self._n[dose] = self._n.get(dose, 0) + count
+            self._s[dose] = self._s.get(dose, 0) + n_dle
+        # Posterior over the a-grid: log prior + sum of binomial log-likelihoods.
+        logpost = np.log(self._prior_grid + 1e-300)
+        for dose, n in self._n.items():
+            s = self._s[dose]
+            p = np.clip(self._hyperbolic_tanh(dose, self._a_grid), 1e-12, 1 - 1e-12)
+            logpost += s * np.log(p) + (n - s) * np.log1p(-p)
+        w = np.exp(logpost - logpost.max())
+        # Posterior-mean a (predict() is inherited and reads _est_a_hat):
+        self._est_a_hat = float(np.sum(self._a_grid * w) / np.sum(w))

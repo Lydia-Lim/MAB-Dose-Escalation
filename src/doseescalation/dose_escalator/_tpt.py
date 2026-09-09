@@ -23,6 +23,12 @@ class ThreePlusThreeDoseEscalator(DoseEscalatorBase):
         self._stage = 0
         self.n_dose_levels = len(dose_levels)
 
+    @property
+    def stopped(self) -> bool:
+        # Stage 2 means an MTD has been declared; a real 3 + 3 trial ends here
+        # and enrols no more patients (see DoseEscalatorBase.stopped).
+        return self._stage == 2
+
     def propose(self) -> int:
         """
         Propose the index of the next dose to trial.

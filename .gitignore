@@ -14,3 +14,22 @@ dist/
 .venv/
 venv/
 env/
+
+# Local-only notes (not for GitHub)
+*.LOCAL.md
+docs/
+
+# Superseded notebooks, retired algorithm variants and old diagnostics --
+# old experiments that were not kept
+experiments/archive/
+
+# Simulation outputs (plots, LaTeX tables, raw per-trial CSVs).
+# Kept locally only -- these are traces of past runs, regenerable from the
+# scripts, and the folder grows by megabytes per run.
+experiments/plots/
+
+# macOS
+.DS_Store
+
+# Diagnosis run outputs (regenerable from experiments/diagnosis/diagnosis_tables.py).
+experiments/diagnosis/runs/

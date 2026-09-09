@@ -55,21 +55,26 @@ def build_correct_dose_summary(results_table, correct_mtds):
     return summary
 
 
-def _rec_mean_std(recs, n_levels, n_batches):
+def _rec_mean_std(recs_flat, n_cohorts, n_levels):
     """
-    Recommendation %: each trial yields a single final dose, so the per-trial
-    value is degenerate (0/100). Mean over all trials = the reported %. The std
-    is the Monte-Carlo std of that proportion, estimated by splitting the trials
-    into `n_batches` batches and taking the std of the batch percentages.
+    Recommendation %: the RealWorld MATLAB (Safe_UCB_Plateau.m) reports the
+    trial-average of the per-round recommendation -- k_rec1 accumulates the
+    recommended dose EVERY round (including the warm-up rounds), then divides by
+    the horizon -- NOT the single final pick. So we pool every per-round
+    recommendation across trials and, like the allocation, take each trial's
+    fraction on each dose then average across trials (std = across-trial std).
+
+    KNOWN warm-up discrepancy: the MATLAB records the MODEL recommendation
+    min(Ii,Ri) during warm-up too -- which is a LOW dose early (tiny-data L1
+    widths collapse the flat test → L1 = lowest dose → min(MTD, L1) = low), giving
+    the paper's small dose-1/2 mass. Our propose() returns the round-robin dose
+    during warm-up instead, so the warm-up leaks ~1/n onto every dose (incl. 5/6).
+    We do NOT skip the warm-up (that drops rounds the MATLAB keeps and inflates
+    dose 3); the faithful fix is to emit the model recommendation during warm-up.
     """
-    recs = np.asarray(recs)
-    onehot = np.zeros((recs.size, n_levels))
-    if recs.size:
-        onehot[np.arange(recs.size), recs] = 100.0
-    mean = onehot.mean(axis=0)
-    nb = max(2, min(n_batches, recs.size))
-    batch_means = np.array([b.mean(axis=0) for b in np.array_split(onehot, nb)])
-    return mean, batch_means.std(axis=0, ddof=1)
+    arr = np.asarray(recs_flat).reshape(-1, n_cohorts)  # (n_trials, n_cohorts)
+    frac = np.stack([(arr == k).mean(axis=1) for k in range(n_levels)], axis=1) * 100.0
+    return frac.mean(axis=0), frac.std(axis=0, ddof=1)
 
 
 def _alloc_mean_std(allocs_flat, n_cohorts, n_levels):
@@ -84,18 +89,17 @@ def _alloc_mean_std(allocs_flat, n_cohorts, n_levels):
 
 
 def build_table2(rec_map, alloc_map, scenario_key, algos, n_cohorts, n_levels,
-                 tox_probs, eff_probs, n_batches=5):
+                 tox_probs, eff_probs):
     """
     Reproduce Table 2 of the SEEDA paper: Recommended | Allocated side by side,
     one column per dose level, with toxicity / efficacy probability header rows
     and each cell showing "mean\\n(std)" over the trials.
 
     NOTE on std: the paper states "mean over 1000 repetitions, (standard
-    deviation)" but does not define the std precisely, and its two halves have
-    different magnitudes. We use the natural definition for each: a Monte-Carlo
-    batch std for recommendation (a single trial gives only 0/100), and the
-    across-trial std for allocation. Both reproduce the paper's magnitudes;
-    `n_batches` is the one knob for the recommendation std.
+    deviation)" but does not define the std precisely. Both halves are now the
+    per-trial fraction on each dose averaged across trials (see _rec_mean_std /
+    _alloc_mean_std), with the across-trial std -- the recommendation is the
+    trial-average of per-round picks, so a single trial is no longer degenerate.
     """
     doses = [f"Dose {k + 1}" for k in range(n_levels)]
     cols = pd.MultiIndex.from_product([["Recommended", "Allocated"], doses])
@@ -108,7 +112,7 @@ def build_table2(rec_map, alloc_map, scenario_key, algos, n_cohorts, n_levels,
             table.loc["Efficacy prob", (half, doses[k])] = f"{eff_probs[k]:g}"
 
     for algo in algos:
-        r_mean, r_std = _rec_mean_std(rec_map[scenario_key][algo], n_levels, n_batches)
+        r_mean, r_std = _rec_mean_std(rec_map[scenario_key][algo], n_cohorts, n_levels)
         a_mean, a_std = _alloc_mean_std(alloc_map[scenario_key][algo], n_cohorts, n_levels)
         for k in range(n_levels):
             table.loc[algo, ("Recommended", doses[k])] = f"{r_mean[k]:.2f}\n({r_std[k]:.2f})"
@@ -183,7 +187,7 @@ def style_table2(table, opt_dose):
     )
 
 
-def export_table2_latex(table, opt_dose, path, caption=None, label=None):
+def export_table2_latex(table, opt_dose, path):
     """
     Export the Table-2-format DataFrame to LaTeX with:
       - Green shading on the MTD (optimal-dose) column only.
@@ -242,8 +246,6 @@ def export_table2_latex(table, opt_dose, path, caption=None, label=None):
     raw = styler.to_latex(
         convert_css=True,    # background-color -> \cellcolor, font-weight -> \bfseries
         hrules=True,         # booktabs rules
-        caption=caption,
-        label=label,
         position_float="centering",
         position="H",
     )
@@ -285,6 +287,20 @@ def export_table2_latex(table, opt_dose, path, caption=None, label=None):
         r'\end{tabular}',
         r'\end{tabular}' + '\n' + r'}%'
     )
+
+    # 6. Strip the float wrapper. The file is meant to be \input INSIDE a table
+    # environment the document supplies, so that the caption and label can be
+    # written by hand there -- \caption is only legal inside a float, so a file
+    # carrying its own \begin{table} cannot be captioned from outside:
+    #     \begin{table}[H]\centering
+    #     \input{...}
+    #     \caption{...}\label{...}
+    #     \end{table}
+    raw = re.sub(r'\\begin\{table\}(\[[^\]]*\])?\s*\n', '', raw)
+    raw = raw.replace('\\end{table}\n', '').replace('\\end{table}', '')
+    raw = re.sub(r'^\\centering\s*\n', '', raw, flags=re.M)
+    raw = re.sub(r'^\\label\{[^}]*\}\s*\n', '', raw, flags=re.M)
+    raw = raw.strip() + '\n'
 
     with open(path, 'w') as f:
         f.write(raw)

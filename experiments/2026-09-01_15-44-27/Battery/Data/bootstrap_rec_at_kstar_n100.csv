@@ -1,0 +1,64 @@
+scenario,scenario_label,horizon,design,metric,dose,is_kstar,mean,se,lo,hi
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,3 + 3,Recommended,3,True,28.185,1.2794275980698169,25.611974999999997,30.74745
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,CRM,Recommended,3,True,1.927,0.049075832150879524,1.83,2.022
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,UCB,Recommended,3,True,42.365,1.0225995985809977,40.32195,44.44005
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,SEEDA,Recommended,3,True,47.951,1.0639742445929585,45.870975,50.111374999999995
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,SEEDA Plateau,Recommended,3,True,90.516,0.38550299287621165,89.75947500000001,91.2741
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,SEEDA Plateau (ours),Recommended,3,True,58.387,0.8310568662847326,56.8578,60.04335
+Paper's main scenario,"Paper's main scenario (k*=3, MTD=4)",100,SEEDA Plateau (fixed),Recommended,3,True,25.884,0.9053236005433083,24.176825,27.695025
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,3 + 3,Recommended,3,True,25.026,1.325111425539036,22.470825,27.6942
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,CRM,Recommended,3,True,1.883,0.04578095192937296,1.791,1.96705
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,UCB,Recommended,3,True,32.701,0.9448210780213745,30.930625,34.590075000000006
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,SEEDA,Recommended,3,True,37.102,1.034236826451364,35.100775,39.163174999999995
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,SEEDA Plateau,Recommended,3,True,90.594,0.377969776209326,89.822975,91.342275
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,SEEDA Plateau (ours),Recommended,3,True,16.376,0.7310308152491545,14.864650000000001,17.763125000000002
+Small efficacy gaps,"Small efficacy gaps (k*=3, MTD=4)",100,SEEDA Plateau (fixed),Recommended,3,True,3.848,0.3320962805129416,3.21475,4.523199999999999
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,3 + 3,Recommended,2,True,20.573,1.2429853714378971,18.263975,23.068150000000003
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,CRM,Recommended,2,True,0.102,0.013011381442684954,0.077975,0.128
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,UCB,Recommended,2,True,29.152,0.9751917780226217,27.202199999999998,31.033175
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,SEEDA,Recommended,2,True,31.196,0.954570774894813,29.291625000000003,32.96405
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,SEEDA Plateau,Recommended,2,True,2.255,0.11004370673687984,2.0389500000000003,2.477175
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,SEEDA Plateau (ours),Recommended,2,True,65.711,0.9712142704666972,63.8429,67.5292
+Optimal dose at MTD-2,"Optimal dose at MTD-2 (k*=2, MTD=4)",100,SEEDA Plateau (fixed),Recommended,2,True,46.271,1.1303348852547292,43.9243,48.509025
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,3 + 3,Recommended,1,True,4.146,0.5582745052025558,3.069,5.223025
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,CRM,Recommended,1,True,0.002,0.0013907944885242132,0.0,0.005
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,UCB,Recommended,1,True,21.629,0.893385265872053,19.90815,23.435299999999998
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,SEEDA,Recommended,1,True,24.18,0.8468904092763857,22.522675,25.918499999999998
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,SEEDA Plateau,Recommended,1,True,1.758,0.07721375232138078,1.609925,1.9100499999999998
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,SEEDA Plateau (ours),Recommended,1,True,72.206,0.9808976865251696,70.181875,74.097325
+Optimal dose at MTD-3,"Optimal dose at MTD-3 (k*=1, MTD=4)",100,SEEDA Plateau (fixed),Recommended,1,True,89.308,0.4606814217518953,88.33775,90.16005
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,3 + 3,Recommended,3,True,26.546,1.337497200131783,23.784925,29.089074999999998
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,CRM,Recommended,3,True,10.451,0.6067949059722847,9.338875,11.696824999999999
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,UCB,Recommended,3,True,23.736,0.8462935519499554,22.065775,25.3751
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,SEEDA,Recommended,3,True,47.728,0.8986886538131507,45.995525,49.5122
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,SEEDA Plateau,Recommended,3,True,72.527,0.6542736938326665,71.33179999999999,73.78604999999999
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,SEEDA Plateau (ours),Recommended,3,True,51.267,0.7405530254394258,49.807775,52.770300000000006
+Step-function toxicity (misspecified),"Step-function toxicity (misspecified) (k*=3, MTD=6, nominal grid 4)",100,SEEDA Plateau (fixed),Recommended,3,True,27.376,0.8462344185218962,25.819625000000002,29.02625
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,3 + 3,Recommended,3,True,31.064,1.3883944501200383,28.4695,33.828125
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,CRM,Recommended,3,True,3.075,0.1034871183271602,2.86385,3.278
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,UCB,Recommended,3,True,48.786,1.061774743420074,46.84795,50.8072
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,SEEDA,Recommended,3,True,48.311,0.9972114855666006,46.350725,50.3331
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,SEEDA Plateau,Recommended,3,True,85.722,0.4329694553895233,84.861825,86.51025
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,SEEDA Plateau (ours),Recommended,3,True,56.893,0.8518067600879505,55.308975,58.6343
+Off-family logistic toxicity (misspecified),"Off-family logistic toxicity (misspecified) (k*=3, MTD=4)",100,SEEDA Plateau (fixed),Recommended,3,True,27.628,0.9445303111455302,25.97255,29.5622
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,3 + 3,Recommended,4,True,29.458,1.3810868454408112,26.891550000000002,32.12285
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,CRM,Recommended,4,True,0.729,0.05477852686962297,0.62895,0.836
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,UCB,Recommended,4,True,46.461,1.0308988043954188,44.461850000000005,48.471075
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,SEEDA,Recommended,4,True,48.425,1.0166310376250887,46.519775,50.53115
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,SEEDA Plateau,Recommended,4,True,87.488,0.42016276971794725,86.62587500000001,88.294175
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,SEEDA Plateau (ours),Recommended,4,True,60.602,0.8157627577162841,59.025975,62.132625
+"Higher MTD (dose 5), k* at MTD-1","Higher MTD (dose 5), k* at MTD-1 (k*=4, MTD=5)",100,SEEDA Plateau (fixed),Recommended,4,True,25.783,0.9005571386958499,24.019925,27.5642
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,3 + 3,Recommended,4,True,76.311,1.2348571603349232,73.772725,78.681125
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,CRM,Recommended,4,True,21.679,0.23888153093494227,21.233900000000002,22.17305
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,UCB,Recommended,4,True,83.848,0.4184503168162783,83.006825,84.64005
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,SEEDA,Recommended,4,True,45.684,0.9743833335914468,43.789875,47.578225
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,SEEDA Plateau,Recommended,4,True,46.089,0.6073264688112309,44.907625,47.345
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,SEEDA Plateau (ours),Recommended,4,True,40.547,0.7145366420582252,39.1048,41.970075
+"Step-function, unsafe tail (misspecified)","Step-function, unsafe tail (misspecified) (k*=4, MTD=4, nominal grid 5)",100,SEEDA Plateau (fixed),Recommended,4,True,21.208,0.8208764272854188,19.600775,22.713525
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,3 + 3,Recommended,4,True,3.585,0.5519812919453497,2.628975,4.718025
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,CRM,Recommended,4,True,24.209,0.9982722396417911,22.20385,26.0933
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,UCB,Recommended,4,True,47.489,0.9732932000940673,45.590875000000004,49.449175
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,SEEDA,Recommended,4,True,43.842,0.9688995382449157,41.855850000000004,45.681075
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,SEEDA Plateau,Recommended,4,True,28.572,0.9735244342198212,26.578775,30.38925
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,SEEDA Plateau (ours),Recommended,4,True,2.626,0.39884300988049237,1.91095,3.45405
+Borderline logistic toxicity (misspecified),"Borderline logistic toxicity (misspecified) (k*=4, MTD=5)",100,SEEDA Plateau (fixed),Recommended,4,True,17.991,0.7794710178214608,16.504949999999997,19.582025
